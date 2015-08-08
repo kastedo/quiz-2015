@@ -31,6 +31,21 @@ app.use(session());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Auto-logout de sesión
+app.use(function(req, res, next) {
+
+	var ahora = new Date();
+	ahora = ahora.getTime();
+
+	req.session.ultimoAcceso = req.session.ultimoAcceso || ahora;
+
+	if (ahora - req.session.ultimoAcceso >= 120000) {
+		delete req.session.user;
+	}
+	req.session.ultimoAcceso = ahora;
+	next();
+});
+
 // Helpers dinámicos
 app.use(function(req, res, next) {
 
